@@ -40,7 +40,7 @@ client.on('message', msg => {
 
     // email is valid
     msg.reply("Thanks! Give me a moment to check on that.")
-    // TODO: if email address is in the ADB, then send a verification email & instructions
+    // TODO: if email address is in the ADB, then send a verification email & instructions (make sure to tell to check spam folder)
     // TODO: if email provided is not in the ADB, send an error message
   }
 
