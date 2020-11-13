@@ -11,7 +11,7 @@
   "devDependencies": {},
   "scripts": {
     "devStart": "node .",
-    "start": "pm2 start app.js --interpreter=/home/ubuntu/.nvm/versions/node/v11.10.1/bin/node -i 0 --name \"discord bot\" --watch",
+    "start": "pm2 start app.js -i 0 --name \"discord bot\" --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
