@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const WELCOME_NEW_MEMBERS = false
+const WELCOME_NEW_MEMBERS = true
 
 function validateEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -55,9 +55,6 @@ client.on('message', msg => {
 	    }
 	    userEmail = msg.content    
 
-	    // email is valid
-	    //msg.reply("Thanks!")
-
 	    // make "generate" request to ADB - it will return "invalid email" if not found or "success" if email belongs to an activist
 	    const paramsForGenerate = new URLSearchParams();
 		paramsForGenerate.append('auth', process.env.ADB_SECRET);
@@ -94,11 +91,11 @@ if (WELCOME_NEW_MEMBERS) {
 	  const channel = member.guild.channels.cache.find(ch => ch.name === '💬general');
 	  channel.send(`Welcome to the DxE Discord, ${member}! Please check your direct messages for instructions to join more channels.`);
 
-	  // testing
+	  // logging for now to make sure everything goes okay
+	  console.log("New member joined the server:")
 	  console.log(JSON.stringify(member));
 
 	  member.send(`Hi, ${member}! I need to verify your identity to add you to the DxE SF Bay chapter member channels. What is your email address?`)
-	  // set status for this user in memory to "pending email" until their email is provided
 	});
 }
 
