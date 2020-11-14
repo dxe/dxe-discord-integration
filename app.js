@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const express = require('express')
 const app = express()
-const port = 6070
+const port = process.env.PORT
 
 const WELCOME_NEW_MEMBERS = true
 
@@ -38,7 +38,7 @@ client.on('message', msg => {
 		.then( json => {
 			status = json.status
 
-			// TODO: if user status is confirmed, just say g'day & that you regret to inform them that there is nothing else you can do for them at this time
+			// if user status is confirmed, just say g'day & that you regret to inform them that there is nothing else you can do for them at this time
 	    if (status == 'confirmed') {
 	    	msg.reply("Your identify has been confirmed. There's nothing else that I can do for you at this time. Have a good day!")
 	    	return
@@ -162,6 +162,7 @@ app.post('/roles/add', (req, res) => {
 					guild.members.fetch(req.query.user)
 					.then(user => {
 						user.roles.add(role)
+						// TODO: make sure we were successful
 						res.json({"result": "added"});
 					})
 				})
@@ -177,6 +178,7 @@ app.post('/roles/add', (req, res) => {
 			guild.members.fetch(req.query.user)
 			.then(user => {
 				user.roles.add(role)
+				// TODO: make sure we were successful
 				res.json({"result": "added"});
 			})
 		})
@@ -209,6 +211,7 @@ app.post('/roles/remove', (req, res) => {
 					guild.members.fetch(req.query.user)
 					.then(user => {
 						user.roles.remove(role)
+						// TODO: make sure we were successful
 						res.json({"result": "removed"});
 					})
 				})
@@ -224,6 +227,7 @@ app.post('/roles/remove', (req, res) => {
 			guild.members.fetch(req.query.user)
 			.then(user => {
 				user.roles.remove(role)
+				// TODO: make sure we were successful
 				res.json({"result": "removed"});
 			})
 		})

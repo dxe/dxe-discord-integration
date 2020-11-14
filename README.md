@@ -10,5 +10,6 @@ Discord bot &amp; ADB integration
 DISCORD_TOKEN=XXXX ; token for discord
 DISCORD_GUILD_ID=XXXX ; guild (server) id for discord
 ADB_SECRET=XXXX ; shared secret for ADB
+PORT=XXXX ; port to run on to listen for local requests
 ```
 5. ```npm run start``` for prod or ```npm run devStart``` for dev
