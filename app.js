@@ -4,6 +4,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const express = require('express')
 const app = express()
+app.use(express.json());
 const port = process.env.PORT
 
 const WELCOME_NEW_MEMBERS = true
@@ -144,7 +145,7 @@ app.get('/roles/get', (req, res) => {
 })
 
 app.post('/roles/add', (req, res) => {
-	let role = req.query.role
+	let role = req.body.role
 
 	// if role is not a number, see if you can find a role with that name
 	if (isNaN(role)) {
@@ -161,10 +162,10 @@ app.post('/roles/add', (req, res) => {
 				if (role === undefined) return res.json({"result": "role not found"});
 				
 				// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-				console.log("Adding " + role + " role to user " + req.query.user)
+				console.log("Adding " + role + " role to user " + req.body.user)
 				client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 				.then(guild => {
-					guild.members.fetch(req.query.user)
+					guild.members.fetch(req.body.user)
 					.then(user => {
 						user.roles.add(role)
 						// TODO: make sure we were successful
@@ -177,10 +178,10 @@ app.post('/roles/add', (req, res) => {
 	} else {
 
 		// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-		console.log("Adding " + role + " role to user " + req.query.user)
+		console.log("Adding " + role + " role to user " + req.body.user)
 		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 		.then(guild => {
-			guild.members.fetch(req.query.user)
+			guild.members.fetch(req.body.user)
 			.then(user => {
 				user.roles.add(role)
 				// TODO: make sure we were successful
@@ -193,7 +194,7 @@ app.post('/roles/add', (req, res) => {
 })
 
 app.post('/roles/remove', (req, res) => {
-	let role = req.query.role
+	let role = req.body.role
 
 	// if role is not a number, see if you can find a role with that name
 	if (isNaN(role)) {
@@ -210,10 +211,10 @@ app.post('/roles/remove', (req, res) => {
 				if (role === undefined) return res.json({"result": "role not found"});
 				
 				// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-				console.log("Removing " + role + " role from user " + req.query.user)
+				console.log("Removing " + role + " role from user " + req.body.user)
 				client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 				.then(guild => {
-					guild.members.fetch(req.query.user)
+					guild.members.fetch(req.body.user)
 					.then(user => {
 						user.roles.remove(role)
 						// TODO: make sure we were successful
@@ -226,10 +227,10 @@ app.post('/roles/remove', (req, res) => {
 	} else {
 
 		// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-		console.log("Removing " + role + " role from user " + req.query.user)
+		console.log("Removing " + role + " role from user " + req.body.user)
 		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 		.then(guild => {
-			guild.members.fetch(req.query.user)
+			guild.members.fetch(req.body.user)
 			.then(user => {
 				user.roles.remove(role)
 				// TODO: make sure we were successful
@@ -241,16 +242,16 @@ app.post('/roles/remove', (req, res) => {
 
 })
 
-app.get('/send_message', (req, res) => {
-	let recipient = req.query.recipient
-	let message = req.query.message
+app.post('/send_message', (req, res) => {
+	let recipient = req.body.recipient
+	let message = req.body.message
 
-	if (typeof(recipient) == 'undefined' || message.length == 0) return res.json({"result": "error: no recipient provided"});
+	if (typeof(recipient) == 'undefined' || recipient.length == 0) return res.json({"result": "error: no recipient provided"});
 	if (typeof(message) == 'undefined' || message.length == 0) return res.json({"result": "error: no message provided"});
 
 	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 	.then(guild => {
-		guild.members.fetch(req.query.recipient)
+		guild.members.fetch(recipient)
 		.then(recipient => {
 			recipient.send(message)
 			.then(result => {
@@ -263,19 +264,19 @@ app.get('/send_message', (req, res) => {
 	})
 })
 
-app.get('/update_nickname', (req, res) => {
+app.post('/update_nickname', (req, res) => {
 
 	// note that this will not work if the user is a moderator
 
-	let user = req.query.user
-	let name = req.query.name
+	let user = req.body.user
+	let name = req.body.name
 
 	if (typeof(user) == 'undefined' || user.length == 0) return res.json({"result": "error: no user provided"});
 	if (typeof(name) == 'undefined' || name.length == 0) return res.json({"result": "error: no name provided"});
 
 	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 	.then(guild => {
-		guild.members.fetch(req.query.user)
+		guild.members.fetch(user)
 		.then(user => {
 			user.setNickname(name)
 			.then(result => {
