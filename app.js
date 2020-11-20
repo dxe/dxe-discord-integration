@@ -24,19 +24,19 @@ client.on('message', msg => {
   // reply if message sent directly to you
   if (msg.channel.type === "dm") {
 
-	  // get the user's ID
-	  userDiscordID = msg.author.id
-	  console.log(userDiscordID);
+	// get the user's ID
+	userDiscordID = msg.author.id
+	console.log(userDiscordID);
 
-	  // get status of user id in ADB
-	  const paramsForStatus = new URLSearchParams();
-		paramsForStatus.append('auth', process.env.ADB_SECRET);
-		paramsForStatus.append('id', userDiscordID);
+	// get status of user id in ADB
+	const paramsForStatus = new URLSearchParams();
+	paramsForStatus.append('auth', process.env.ADB_SECRET);
+	paramsForStatus.append('id', userDiscordID);
 
   	fetch('https://adb.dxe.io/discord/status', {method: 'POST', body: paramsForStatus})
-		.then( res => { return res.json() } )
-		.then( json => {
-			status = json.status
+	.then( res => { return res.json() } )
+	.then( json => {
+		status = json.status
 
 			// if user status is confirmed, just say g'day & that you regret to inform them that there is nothing else you can do for them at this time
 	    if (status == 'confirmed') {
@@ -60,28 +60,33 @@ client.on('message', msg => {
 
 	    // make "generate" request to ADB - it will return "invalid email" if not found or "success" if email belongs to an activist
 	    const paramsForGenerate = new URLSearchParams();
-			paramsForGenerate.append('auth', process.env.ADB_SECRET);
-			paramsForGenerate.append('id', userDiscordID);
-			paramsForGenerate.append('email', userEmail);
+		paramsForGenerate.append('auth', process.env.ADB_SECRET);
+		paramsForGenerate.append('id', userDiscordID);
+		paramsForGenerate.append('email', userEmail);
 
-			fetch('https://adb.dxe.io/discord/generate', {method: 'POST', body: paramsForGenerate})
-			.then( res => { return res.json() } )
-			.then( json => {
-				status = json.status
+		fetch('https://adb.dxe.io/discord/generate', {method: 'POST', body: paramsForGenerate})
+		.then( res => { return res.json() } )
+		.then( json => {
+			status = json.status
 
-				if (status === 'invalid email') {
-					msg.reply("Sorry, I could not find any activists associated with that email address. Please enter another email address to check, or email tech@dxe.io for assistance.")
-					return
-				}
+			if (status === 'invalid email') {
+				msg.reply("Sorry, I could not find any activists associated with that email address. Please enter another email address to check, or email tech@dxe.io for assistance.")
+				return
+			}
 
-				if (status === 'success') {
-					msg.reply("I just sent an email to you to confirm your email address. Please click the confirmation link in the email. If you can't find it, then be sure to check your spam folder.")
-					return
-				}
+			if (status === 'too many activists') {
+				msg.reply("Sorry, there are multiple activists associated with that email address. Please email tech@dxe.io for assistance.")
+				return
+			}
 
-			})
+			if (status === 'success') {
+				msg.reply("I just sent an email to you to confirm your email address. Please click the confirmation link in the email. If you can't find it, then be sure to check your spam folder.")
+				return
+			}
 
 		})
+
+	})
 
   }
 
@@ -235,6 +240,54 @@ app.post('/roles/remove', (req, res) => {
 	}
 
 })
+
+app.get('/send_message', (req, res) => {
+	let recipient = req.query.recipient
+	let message = req.query.message
+
+	if (typeof(recipient) == 'undefined' || message.length == 0) return res.json({"result": "error: no recipient provided"});
+	if (typeof(message) == 'undefined' || message.length == 0) return res.json({"result": "error: no message provided"});
+
+	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+	.then(guild => {
+		guild.members.fetch(req.query.recipient)
+		.then(recipient => {
+			recipient.send(message)
+			.then(result => {
+				return res.json({"result": "sent"});
+			})
+			.catch(err => {
+				return res.json({"result": "error"});
+			})		
+		})
+	})
+})
+
+app.get('/update_nickname', (req, res) => {
+
+	// note that this will not work if the user is a moderator
+
+	let user = req.query.user
+	let name = req.query.name
+
+	if (typeof(user) == 'undefined' || user.length == 0) return res.json({"result": "error: no user provided"});
+	if (typeof(name) == 'undefined' || name.length == 0) return res.json({"result": "error: no name provided"});
+
+	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+	.then(guild => {
+		guild.members.fetch(req.query.user)
+		.then(user => {
+			user.setNickname(name)
+			.then(result => {
+				return res.json({"result": "updated"});
+			})
+			.catch(err => {
+				return res.json({"result": "error: " + err.message});
+			})		
+		})
+	})
+})
+
 
 app.listen(port, () => {
 	console.log(`App listening at http://localhost:${port}`)
