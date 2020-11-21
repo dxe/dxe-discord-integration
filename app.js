@@ -113,6 +113,7 @@ client.login(process.env.DISCORD_TOKEN);
 app.get('/roles/get', (req, res) => {
 
 	// TODO: check that request is authorized with our ADB/bot shared secret
+	// (not super important b/c it is only accessible internally on server itself)
 
 	// fetch the guild's roles so that we know the names
 	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
@@ -137,6 +138,10 @@ app.get('/roles/get', (req, res) => {
 					})
 					res.json(userRoles);
 				})
+				.catch(err => {
+					res.status(500);
+					return res.json({"result": "error"});
+				})
 			})
 
 		})
@@ -159,7 +164,10 @@ app.post('/roles/add', (req, res) => {
 					allRoles[role.name] = role.id
 				})
 				role = allRoles[role]
-				if (role === undefined) return res.json({"result": "role not found"});
+				if (role === undefined) {
+					res.status(400);
+					return res.json({"result": "role not found"});
+				}
 				
 				// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
 				console.log("Adding " + role + " role to user " + req.body.user)
@@ -170,6 +178,10 @@ app.post('/roles/add', (req, res) => {
 						user.roles.add(role)
 						// TODO: make sure we were successful
 						res.json({"result": "added"});
+					})
+					.catch(err => {
+						res.status(500);
+						return res.json({"result": "error"});
 					})
 				})
 
@@ -186,6 +198,10 @@ app.post('/roles/add', (req, res) => {
 				user.roles.add(role)
 				// TODO: make sure we were successful
 				res.json({"result": "added"});
+			})
+			.catch(err => {
+				res.status(500);
+				return res.json({"result": "error"});
 			})
 		})
 
@@ -208,7 +224,10 @@ app.post('/roles/remove', (req, res) => {
 					allRoles[role.name] = role.id
 				})
 				role = allRoles[role]
-				if (role === undefined) return res.json({"result": "role not found"});
+				if (role === undefined) {
+					res.status(400);
+					return res.json({"result": "role not found"});
+				}
 				
 				// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
 				console.log("Removing " + role + " role from user " + req.body.user)
@@ -219,6 +238,10 @@ app.post('/roles/remove', (req, res) => {
 						user.roles.remove(role)
 						// TODO: make sure we were successful
 						res.json({"result": "removed"});
+					})
+					.catch(err => {
+						res.status(500);
+						return res.json({"result": "error"});
 					})
 				})
 
@@ -236,6 +259,10 @@ app.post('/roles/remove', (req, res) => {
 				// TODO: make sure we were successful
 				res.json({"result": "removed"});
 			})
+			.catch(err => {
+				res.status(500);
+				return res.json({"result": "error"});
+			})
 		})
 
 	}
@@ -246,8 +273,14 @@ app.post('/send_message', (req, res) => {
 	let recipient = req.body.recipient
 	let message = req.body.message
 
-	if (typeof(recipient) == 'undefined' || recipient.length == 0) return res.json({"result": "error: no recipient provided"});
-	if (typeof(message) == 'undefined' || message.length == 0) return res.json({"result": "error: no message provided"});
+	if (typeof(recipient) == 'undefined' || recipient.length == 0) {
+		res.status(400);
+		return res.json({"result": "error: no recipient provided"});
+	}
+	if (typeof(message) == 'undefined' || message.length == 0) {
+		res.status(400);
+		return res.json({"result": "error: no message provided"});
+	}
 
 	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 	.then(guild => {
@@ -258,6 +291,7 @@ app.post('/send_message', (req, res) => {
 				return res.json({"result": "sent"});
 			})
 			.catch(err => {
+				res.status(500);
 				return res.json({"result": "error"});
 			})		
 		})
@@ -271,8 +305,16 @@ app.post('/update_nickname', (req, res) => {
 	let user = req.body.user
 	let name = req.body.name
 
-	if (typeof(user) == 'undefined' || user.length == 0) return res.json({"result": "error: no user provided"});
-	if (typeof(name) == 'undefined' || name.length == 0) return res.json({"result": "error: no name provided"});
+	console.log("Updating nickname of " + user + " to " + name);
+
+	if (typeof(user) == 'undefined' || user.length == 0) {
+		res.status(400);
+		return res.json({"result": "error: no user provided"});
+	}
+	if (typeof(name) == 'undefined' || name.length == 0) {
+		res.status(400);
+		return res.json({"result": "error: no name provided"});
+	}
 
 	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
 	.then(guild => {
@@ -283,6 +325,7 @@ app.post('/update_nickname', (req, res) => {
 				return res.json({"result": "updated"});
 			})
 			.catch(err => {
+				res.status(500);
 				return res.json({"result": "error: " + err.message});
 			})		
 		})
