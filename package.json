@@ -4,16 +4,22 @@
   "description": "Discord bot &amp; ADB integration",
   "main": "app.js",
   "dependencies": {
+    "@babel/core": "^7.12.8",
+    "@babel/preset-env": "^7.12.7",
+    "babel-jest": "^26.6.3",
     "discord.js": "^12.4.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "node-fetch": "^2.6.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@babel/plugin-proposal-throw-expressions": "^7.12.1",
+    "jest": "^26.6.3"
+  },
   "scripts": {
     "devStart": "node .",
     "start": "pm2 start app.js --name \"discord bot\" --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watchAll"
   },
   "repository": {
     "type": "git",

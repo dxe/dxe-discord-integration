@@ -7,7 +7,18 @@ const app = express()
 app.use(express.json());
 const port = process.env.PORT
 
+const appApi = require('./app_api/AppApi');
+const discordApi = require('./discord_api/DiscordApi');
+
 const WELCOME_NEW_MEMBERS = true
+const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID
+
+// Store state in a single variable for convenient dependency injection in tests
+const state = {
+	DISCORD_GUILD_ID,
+	client,
+	discordApi,
+};
 
 function validateEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -149,127 +160,11 @@ app.get('/roles/get', (req, res) => {
 
 })
 
-app.post('/roles/add', (req, res) => {
-	let role = req.body.role
+app.post('/roles/add', appApi.addRole(state))
 
-	// if role is not a number, see if you can find a role with that name
-	if (isNaN(role)) {
-		// try look up the id using the name
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
-		.then(guild => {
-			guild.roles.fetch()
-			.then(roles => {
-				let allRoles = new Map()
-				roles.cache.forEach(role => {
-					allRoles[role.name] = role.id
-				})
-				role = allRoles[role]
-				if (role === undefined) {
-					res.status(400);
-					return res.json({"result": "role not found"});
-				}
-				
-				// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-				console.log("Adding " + role + " role to user " + req.body.user)
-				client.guilds.fetch(process.env.DISCORD_GUILD_ID)
-				.then(guild => {
-					guild.members.fetch(req.body.user)
-					.then(user => {
-						user.roles.add(role)
-						// TODO: make sure we were successful
-						res.json({"result": "added"});
-					})
-					.catch(err => {
-						res.status(500);
-						return res.json({"result": "error"});
-					})
-				})
+app.post('/roles/remove', appApi.removeRole(state))
 
-			})
-		})
-	} else {
-
-		// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-		console.log("Adding " + role + " role to user " + req.body.user)
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
-		.then(guild => {
-			guild.members.fetch(req.body.user)
-			.then(user => {
-				user.roles.add(role)
-				// TODO: make sure we were successful
-				res.json({"result": "added"});
-			})
-			.catch(err => {
-				res.status(500);
-				return res.json({"result": "error"});
-			})
-		})
-
-	}
-
-})
-
-app.post('/roles/remove', (req, res) => {
-	let role = req.body.role
-
-	// if role is not a number, see if you can find a role with that name
-	if (isNaN(role)) {
-		// try look up the id using the name
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
-		.then(guild => {
-			guild.roles.fetch()
-			.then(roles => {
-				let allRoles = new Map()
-				roles.cache.forEach(role => {
-					allRoles[role.name] = role.id
-				})
-				role = allRoles[role]
-				if (role === undefined) {
-					res.status(400);
-					return res.json({"result": "role not found"});
-				}
-				
-				// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-				console.log("Removing " + role + " role from user " + req.body.user)
-				client.guilds.fetch(process.env.DISCORD_GUILD_ID)
-				.then(guild => {
-					guild.members.fetch(req.body.user)
-					.then(user => {
-						user.roles.remove(role)
-						// TODO: make sure we were successful
-						res.json({"result": "removed"});
-					})
-					.catch(err => {
-						res.status(500);
-						return res.json({"result": "error"});
-					})
-				})
-
-			})
-		})
-	} else {
-
-		// try to add the role using the ID - TODO: move this to its own function to be reusable (or just use async/await to control flow better)
-		console.log("Removing " + role + " role from user " + req.body.user)
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
-		.then(guild => {
-			guild.members.fetch(req.body.user)
-			.then(user => {
-				user.roles.remove(role)
-				// TODO: make sure we were successful
-				res.json({"result": "removed"});
-			})
-			.catch(err => {
-				res.status(500);
-				return res.json({"result": "error"});
-			})
-		})
-
-	}
-
-})
-
-app.post('/send_message', (req, res) => {
+app.post('/send_message', async (req, res) => {
 	let recipient = req.body.recipient
 	let message = req.body.message
 
