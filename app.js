@@ -33,6 +33,52 @@ client.on('message', msg => {
 
   if (msg.author.bot) return // don't reply to bots (i.e. yourself)
 
+  if (msg.content.startsWith("!users")) {
+  	console.log("!users command called")
+
+	// fetch all users
+	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+	.then(guild => {
+		guild.members.fetch()
+		.then(users => {
+			let allUsers = new Map()
+			users.forEach((value, key) => {
+				allUsers[key] = {
+					"username": value.user.username,
+					"adb": null,
+				}
+			})
+			// get users from ADB
+			const paramsForStatus = new URLSearchParams();
+			paramsForStatus.append('auth', process.env.ADB_SECRET);
+
+		  	fetch('https://adb.dxe.io/discord/list', {method: 'POST', body: paramsForStatus})
+			.then( res => {
+				return res.json()
+			})
+			.then( json => {
+				json.activists.forEach(activist => {
+					// add to allUsers where key matches ID
+					if (allUsers[activist.DiscordID]) allUsers[activist.DiscordID].adb = activist.Name
+				})
+				// TODO: make this output prettier & handle message length > 2000 chars
+				let newMessage = "These users do not have their Discord ID in the ADB:\n\nDiscord ID" + "\t\t" + "Discord username\n";
+				for (const [key, value] of Object.entries(allUsers)) {
+					if (!value.adb) newMessage += key + "\t" + value.username + "\n";
+				}
+				msg.reply(newMessage)
+			})
+		})
+		.catch(err => {
+			res.status(500);
+			return res.json({"result": "error"});
+		})
+	})
+
+  	// request list of users from ADB to compare to
+  	return
+  }
+
   // reply if message sent directly to you
   if (msg.channel.type === "dm") {
 
