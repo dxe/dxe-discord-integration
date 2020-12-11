@@ -154,7 +154,7 @@ client.on('message', msg => {
 if (WELCOME_NEW_MEMBERS) {
 	client.on('guildMemberAdd', member => {
 	  console.log("guild member added.");
-	  const channel = member.guild.channels.cache.find(ch => ch.name === '💬general');
+	  const channel = member.guild.channels.cache.find(ch => ch.name === '💬general-global');
 	  channel.send(`Welcome to the DxE Discord, ${member}! Please check your direct messages for instructions to join more channels.`);
 
 	  // logging for now to make sure everything goes okay
