@@ -154,8 +154,13 @@ client.on('message', msg => {
 if (WELCOME_NEW_MEMBERS) {
 	client.on('guildMemberAdd', member => {
 	  console.log("guild member added.");
+<<<<<<< HEAD
 	  const channel = member.guild.channels.cache.find(ch => ch.name === '💬general');
 	  channel.send(`Welcome, ${member}! Please verify your identity by replying to the direct message sent by <@768973756411674644> to get access to all channels and features. (If you have any trouble, please email discord-mods@dxe.io.)`);
+=======
+	  const channel = member.guild.channels.cache.find(ch => ch.name === '💬general-global');
+	  channel.send(`Welcome to the DxE Discord, ${member}! Please check your direct messages for instructions to join more channels.`);
+>>>>>>> 9e9e1d0a07021058f2a2109447179b65e4ae7fb7
 
 	  // logging for now to make sure everything goes okay
 	  console.log("New member joined the server:")
