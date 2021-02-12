@@ -155,13 +155,13 @@ if (WELCOME_NEW_MEMBERS) {
 	client.on('guildMemberAdd', member => {
 	  console.log("guild member added.");
 	  const channel = member.guild.channels.cache.find(ch => ch.name === '💬general');
-	  channel.send(`Welcome, ${member}! If you are already a member of DxE, please verify your identity by replying to the direct message sent by <@768973756411674644> (If you have any trouble, please email discord-mods@dxe.io.)`);
+	  channel.send(`Welcome, ${member}! If you are already a member of DxE, please verify your identity by replying to the direct message sent by <@768973756411674644>. (If you have any trouble, please email discord-mods@dxe.io.)`);
 
 	  // logging for now to make sure everything goes okay
 	  console.log("New member joined the server:")
 	  console.log(JSON.stringify(member));
 
-	  member.send(`Hi, ${member}! If you are already a member of DxE SF Bay, I need to verify your identity to add you to add you to the exclusive channels. What is your email address?`)
+	  member.send(`Hi, ${member}! If you are already a member of DxE SF Bay, I need to verify your identity to add you to the exclusive channels. What is your email address?`)
 	});
 }
 
