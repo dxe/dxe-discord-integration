@@ -97,38 +97,38 @@ client.on('message', msg => {
 						roles.forEach(role => {
 							if (role === moderatorRoleId) {
 								isModerator = true
-								return
 							}
 						})
+						if (!isModerator) {
+							msg.reply("Sorry, only moderators may use this command.")
+							return
+						}
+						const key = msg.content.substring(5).split(" ")[0].toLowerCase()
+						const value = msg.content.substring(msg.content.indexOf(" ", 5) + 1)
+						if (key === "users" || key === "events") {
+							msg.reply("Sorry, that is a reserved word.")
+							return
+						}
+						if (!/^[a-zA-Z]+$/.test(key)) {
+							msg.reply("Sorry, the word must only contain letters.")
+							return
+						}
+						if (key.length > 2000) {
+							msg.reply("Sorry, the message length must be <= 2000 characters.")
+							return
+						}
+						const params = new URLSearchParams();
+						params.append('auth', process.env.ADB_SECRET);
+						params.append('user', msg.author.id)
+						params.append('text', value)
+						fetch('https://adb.dxe.io/discord/set_message/' + key, {method: 'POST', body: params})
+							.then( res => { return res.json() } )
+							.then( json => {
+								msg.reply(json.status)
+							})
 					})
 			})
-		if (!isModerator) {
-			msg.reply("Sorry, only moderators may use this command.")
-			return
-		}
-		const key = msg.content.substring(5).split(" ")[0].toLowerCase()
-		const value = msg.content.substring(msg.content.indexOf(" ", 5) + 1)
-		if (key === "users" || key === "events") {
-			msg.reply("Sorry, that is a reserved word.")
-			return
-		}
-		if (!/^[a-zA-Z]+$/.test(key)) {
-			msg.reply("Sorry, the word must only contain letters.")
-			return
-		}
-		if (key.length > 2000) {
-			msg.reply("Sorry, the message length must be <= 2000 characters.")
-			return
-		}
-		const params = new URLSearchParams();
-		params.append('auth', process.env.ADB_SECRET);
-		params.append('user', msg.author.id)
-		params.append('text', value)
-		fetch('https://adb.dxe.io/discord/set_message/' + key, {method: 'POST', body: params})
-			.then( res => { return res.json() } )
-			.then( json => {
-				msg.reply(json.status)
-			})
+
 		return
 	}
 
@@ -148,28 +148,28 @@ client.on('message', msg => {
 								return
 							}
 						})
-					})
-			})
-		if (!isChapterMember) {
-			// don't say anything if error since they may be calling a different bot
-			return
-		}
-		const key = msg.content.substring(1).toLowerCase()
-		if (!/^[a-zA-Z]+$/.test(key)) {
-			return
-		}
-		const params = new URLSearchParams();
-		params.append('auth', process.env.ADB_SECRET);
+						if (!isChapterMember) {
+							// don't say anything if error since they may be calling a different bot
+							return
+						}
+						const key = msg.content.substring(1).toLowerCase()
+						if (!/^[a-zA-Z]+$/.test(key)) {
+							return
+						}
+						const params = new URLSearchParams();
+						params.append('auth', process.env.ADB_SECRET);
 
-		fetch('https://adb.dxe.io/discord/get_message/' + key, {method: 'POST', body: params})
-			.then( res => { return res.json() } )
-			.then( json => {
-				let status = json.status
-				let message = json.message
-				if (status === 'success') {
-					msg.reply(message)
-					return
-				}
+						fetch('https://adb.dxe.io/discord/get_message/' + key, {method: 'POST', body: params})
+							.then( res => { return res.json() } )
+							.then( json => {
+								let status = json.status
+								let message = json.message
+								if (status === 'success') {
+									msg.reply(message)
+									return
+								}
+							})
+					})
 			})
 		return
 	}
