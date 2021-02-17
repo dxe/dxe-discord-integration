@@ -121,6 +121,7 @@ client.on('message', msg => {
 						params.append('auth', process.env.ADB_SECRET);
 						params.append('user', msg.author.id)
 						params.append('text', value)
+						console.log("params:" + params.toString())
 						fetch('https://adb.dxe.io/discord/set_message/' + key, {method: 'POST', body: params})
 							.then( res => { return res.json() } )
 							.then( json => {
