@@ -146,7 +146,6 @@ client.on('message', msg => {
 						roles.forEach(role => {
 							if (role === chapterMemberRoleID) {
 								isChapterMember = true
-								return
 							}
 						})
 						if (!isChapterMember) {
