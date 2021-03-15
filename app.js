@@ -310,7 +310,7 @@ app.post('/roles/remove', appApi.removeRole(state))
 app.post('/send_message', async (req, res) => {
 	let recipient = req.body.recipient
 	let message = req.body.message
-	const msgCharLimit = 1950
+	const msgCharLimit = 1500
 
 	if (typeof(recipient) == 'undefined' || recipient.length == 0) {
 		res.status(400);
