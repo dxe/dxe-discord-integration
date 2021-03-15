@@ -329,14 +329,14 @@ app.post('/send_message', async (req, res) => {
 			    const msgToSend = str.substring(i, Math.min(str.length, i + msgCharLimit));
 			    recipient.send(msgToSend)
 			}
-			.then(result => {
-				return res.json({"result": "sent"});
-			})
-			.catch(err => {
-				res.status(500);
-				return res.json({"result": "error"});
-			})		
 		})
+		.then(result => {
+			return res.json({"result": "sent"});
+		})
+		.catch(err => {
+			res.status(500);
+			return res.json({"result": "error"});
+		})	
 	})
 })
 
