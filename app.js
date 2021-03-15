@@ -325,7 +325,7 @@ app.post('/send_message', async (req, res) => {
 	.then(guild => {
 		guild.members.fetch(recipient)
 		.then(recipient => {
-			for(let i = 0; i < str.length; i += msgCharLimit) {
+			for(let i = 0; i < message.length; i += msgCharLimit) {
 			    const msgToSend = message.substring(i, Math.min(message.length, i + msgCharLimit));
 			    recipient.send(msgToSend)
 			}
