@@ -327,6 +327,7 @@ app.post('/send_message', async (req, res) => {
 		.then(recipient => {
 			for(let i = 0; i < message.length; i += msgCharLimit) {
 			    const msgToSend = message.substring(i, Math.min(message.length, i + msgCharLimit));
+			    console.log(msgToSend)
 			    console.log(`Message length: ${msgToSend.length}`)
 			    recipient.send(msgToSend)
 			}
