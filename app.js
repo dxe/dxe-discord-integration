@@ -70,7 +70,7 @@ client.on('message', msg => {
 					}
 					for(let i = 0; i < newMessage.length; i += msgCharLimit) {
 					    const msgToSend = newMessage.substring(i, Math.min(newMessage.length, i + msgCharLimit));
-					    recipient.send(msgToSend)
+					    msg.reply(msgToSend)
 					}
 				})
 			})
