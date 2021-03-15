@@ -329,7 +329,7 @@ app.post('/send_message', async (req, res) => {
 			    const msgToSend = message.substring(i, Math.min(message.length, i + msgCharLimit));
 			    console.log(msgToSend)
 			    console.log(`Message length: ${msgToSend.length}`)
-			    recipient.send(msgToSend)
+			    //recipient.send(msgToSend)
 			}
 		})
 		.then(result => {
