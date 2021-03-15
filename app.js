@@ -20,6 +20,8 @@ const state = {
 	discordApi,
 };
 
+const msgCharLimit = 1900
+
 function validateEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
@@ -66,7 +68,10 @@ client.on('message', msg => {
 					for (const [key, value] of Object.entries(allUsers)) {
 						if (!value.adb) newMessage += key + "\t" + value.username + "\n";
 					}
-					msg.reply(newMessage)
+					for(let i = 0; i < newMessage.length; i += msgCharLimit) {
+					    const msgToSend = newMessage.substring(i, Math.min(newMessage.length, i + msgCharLimit));
+					    recipient.send(msgToSend)
+					}
 				})
 			})
 			.catch(err => {
@@ -310,7 +315,6 @@ app.post('/roles/remove', appApi.removeRole(state))
 app.post('/send_message', async (req, res) => {
 	let recipient = req.body.recipient
 	let message = req.body.message
-	const msgCharLimit = 1500
 
 	if (typeof(recipient) == 'undefined' || recipient.length == 0) {
 		res.status(400);
@@ -327,9 +331,7 @@ app.post('/send_message', async (req, res) => {
 		.then(recipient => {
 			for(let i = 0; i < message.length; i += msgCharLimit) {
 			    const msgToSend = message.substring(i, Math.min(message.length, i + msgCharLimit));
-			    console.log(msgToSend)
-			    console.log(`Message length: ${msgToSend.length}`)
-			    //recipient.send(msgToSend)
+			    recipient.send(msgToSend)
 			}
 		})
 		.then(result => {
