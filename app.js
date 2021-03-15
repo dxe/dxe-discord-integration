@@ -310,6 +310,7 @@ app.post('/roles/remove', appApi.removeRole(state))
 app.post('/send_message', async (req, res) => {
 	let recipient = req.body.recipient
 	let message = req.body.message
+	const msgCharLimit = 1950
 
 	if (typeof(recipient) == 'undefined' || recipient.length == 0) {
 		res.status(400);
@@ -324,7 +325,10 @@ app.post('/send_message', async (req, res) => {
 	.then(guild => {
 		guild.members.fetch(recipient)
 		.then(recipient => {
-			recipient.send(message)
+			for(let i = 0; i < str.length; i += msgCharLimit) {
+			    const msgToSend = str.substring(i, Math.min(str.length, i + msgCharLimit));
+			    recipient.send(msgToSend)
+			}
 			.then(result => {
 				return res.json({"result": "sent"});
 			})
