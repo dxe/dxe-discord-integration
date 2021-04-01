@@ -63,8 +63,7 @@ client.on('message', msg => {
 						// add to allUsers where key matches ID
 						if (allUsers[activist.DiscordID]) allUsers[activist.DiscordID].adb = activist.Name
 					})
-					// TODO: make this output prettier & handle message length > 2000 chars
-					let newMessage = "These users do not have their Discord ID in the ADB:\n\nDiscord ID" + "\t\t" + "Discord username\n";
+					let newMessage = "These users do not have their Discord ID associated with an activist in the ADB. Note that this list does not exclude people who filled out the new Discord form.";
 					for (const [key, value] of Object.entries(allUsers)) {
 						if (!value.adb) newMessage += key + "\t" + value.username + "\n";
 					}
