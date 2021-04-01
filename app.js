@@ -211,7 +211,7 @@ client.on('message', msg => {
 			// confirm email is valid
 			if (!validateEmail(msg.content)) {
 			  msg.reply("Sorry, that is not a valid email address.")
-			  msg.reply("I need to verify your identity to add you to the DxE SF Bay chapter member channels. What is your email address?");
+			  msg.reply("I need to verify your identity to add you to our exclusive channels. What is your email address?");
 			  return
 			}
 			userEmail = msg.content
@@ -238,7 +238,7 @@ client.on('message', msg => {
 				}
 
 				if (status === 'success') {
-					msg.reply("I just sent an email to you to confirm your email address. Please click the confirmation link in the email. If you can't find it, then be sure to check your spam folder.")
+					msg.reply("I just sent an email to you to confirm your email address. Please click the confirmation link in the email. (If you can't find it, then be sure to check your spam folder.)")
 					return
 				}
 
@@ -255,13 +255,13 @@ if (WELCOME_NEW_MEMBERS) {
 	client.on('guildMemberAdd', member => {
 	  console.log("guild member added.");
 	  const channel = member.guild.channels.cache.find(ch => ch.name === '🔑verify');
-	  channel.send(`Welcome, ${member}! If you are already a member of DxE, please verify your identity by replying to the direct message sent by <@768973756411674644>. (If you have any trouble, please email discord-mods@dxe.io.)`);
+	  channel.send(`Welcome, ${member}! Please verify your email by replying to the direct message sent by <@768973756411674644>. (If you have any trouble, please email discord-mods@dxe.io.)`);
 
 	  // logging for now to make sure everything goes okay
 	  console.log("New member joined the server:")
 	  console.log(JSON.stringify(member));
 
-	  member.send(`Hi, ${member}! If you are already a member of DxE SF Bay, I need to verify your identity to add you to the exclusive channels. What is your email address?`)
+	  member.send(`Hi, ${member}! I need to verify your identity to add you to our exclusive channels. What is your email address?`)
 	});
 }
 
