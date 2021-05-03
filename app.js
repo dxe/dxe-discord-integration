@@ -24,8 +24,9 @@ const state = {
 const msgCharLimit = 1900
 
 const authorizePostRequests = function (req, res, next) {
-	console.log(req)
 	console.log("Auth header: " + req.headers["Auth"])
+	console.log(req.headers)
+	console.log(req.body)
 	if (req.method === "POST" && req.headers["Auth"] !== ADB_SECRET) {
 		res.status(400);
 		return res.json({"result": "not authorized"});
