@@ -12,6 +12,7 @@ const discordApi = require('./discord_api/DiscordApi');
 
 const WELCOME_NEW_MEMBERS = true
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID
+const ADB_SECRET = process.env.ADB_SECRET
 
 // Store state in a single variable for convenient dependency injection in tests
 const state = {
@@ -21,6 +22,16 @@ const state = {
 };
 
 const msgCharLimit = 1900
+
+const authorizePostRequests = function (req, res, next) {
+	if (req.method === "POST" && req.header["Auth"] !== ADB_SECRET) {
+		res.status(400);
+		return res.json({"result": "not authorized"});
+	}
+	next();
+}
+
+app.use(authorizePostRequests);
 
 function validateEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

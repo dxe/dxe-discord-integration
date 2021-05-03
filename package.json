@@ -17,8 +17,7 @@
     "jest": "^26.6.3"
   },
   "scripts": {
-    "devStart": "node .",
-    "start": "pm2 start app.js --name \"discord bot\" --watch",
+    "start": "node app.js",
     "test": "jest --watchAll"
   },
   "repository": {
