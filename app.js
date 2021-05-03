@@ -287,6 +287,11 @@ client.login(config.DISCORD_TOKEN);
 
 function getUserRoles() {}
 
+app.get('/health', (req, res) => {
+	res.status(200);
+	return res.json({"status": "healthy"});
+})
+
 app.get('/roles/get', (req, res) => {
 
 	// TODO: check that request is authorized with our ADB/bot shared secret
