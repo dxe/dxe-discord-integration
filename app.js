@@ -5,18 +5,26 @@ const client = new Discord.Client();
 const express = require('express')
 const app = express()
 app.use(express.json());
-const port = process.env.PORT
 
 const appApi = require('./app_api/AppApi');
 const discordApi = require('./discord_api/DiscordApi');
 
-const WELCOME_NEW_MEMBERS = true
-const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID
-const ADB_SECRET = process.env.ADB_SECRET
+const config = {
+	WELCOME_NEW_MEMBERS: true,
+	DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID,
+	ADB_SECRET: process.env.ADB_SECRET,
+	PORT: process.env.PORT || 6070,
+	DISCORD_TOKEN: process.env.DISCORD_TOKEN,
+}
+
+if (config.DISCORD_GUILD_ID === "" || config.ADB_SECRET === "" || config.DISCORD_TOKEN === "") {
+	console.log("ERROR: MISSING CONFIG!")
+	process.exit(1)
+}
 
 // Store state in a single variable for convenient dependency injection in tests
 const state = {
-	DISCORD_GUILD_ID,
+	DISCORD_GUILD_ID: config.DISCORD_GUILD_ID,
 	client,
 	discordApi,
 };
@@ -24,7 +32,7 @@ const state = {
 const msgCharLimit = 1900
 
 const authorizePostRequests = function (req, res, next) {
-	if (req.method === "POST" && req.headers["auth"] !== ADB_SECRET) {
+	if (req.method === "POST" && req.headers["auth"] !== config.ADB_SECRET) {
 		res.status(400);
 		return res.json({"result": "not authorized"});
 	}
@@ -50,7 +58,7 @@ client.on('message', msg => {
 		console.log("!users command called")
 
 		// fetch all users
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+		client.guilds.fetch(config.DISCORD_GUILD_ID)
 		.then(guild => {
 			guild.members.fetch()
 			.then(users => {
@@ -63,7 +71,7 @@ client.on('message', msg => {
 				})
 				// get users from ADB
 				const paramsForStatus = new URLSearchParams();
-				paramsForStatus.append('auth', process.env.ADB_SECRET);
+				paramsForStatus.append('auth', config.ADB_SECRET);
 
 				fetch('https://adb.dxe.io/discord/list', {method: 'POST', body: paramsForStatus})
 				.then( res => {
@@ -103,7 +111,7 @@ client.on('message', msg => {
 		console.log("!set command called")
 		const moderatorRoleId = "748440668850094141"
 		let isModerator = false;
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+		client.guilds.fetch(config.DISCORD_GUILD_ID)
 			.then(guild => {
 				guild.members.fetch(msg.author)
 					.then(user => {
@@ -133,7 +141,7 @@ client.on('message', msg => {
 							return
 						}
 						const params = new URLSearchParams();
-						params.append('auth', process.env.ADB_SECRET);
+						params.append('auth', config.ADB_SECRET);
 						params.append('user', msg.author.id)
 						params.append('text', value)
 						console.log("params:" + params.toString())
@@ -152,7 +160,7 @@ client.on('message', msg => {
 		console.log("! command called")
 		const chapterMemberRoleID = "748440285410754601"
 		let isChapterMember = false;
-		client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+		client.guilds.fetch(config.DISCORD_GUILD_ID)
 			.then(guild => {
 				guild.members.fetch(msg.author)
 					.then(user => {
@@ -172,7 +180,7 @@ client.on('message', msg => {
 							return
 						}
 						const params = new URLSearchParams();
-						params.append('auth', process.env.ADB_SECRET);
+						params.append('auth', config.ADB_SECRET);
 
 						fetch('https://adb.dxe.io/discord/get_message/' + key, {method: 'POST', body: params})
 							.then( res => { return res.json() } )
@@ -198,7 +206,7 @@ client.on('message', msg => {
 
 		// get status of user id in ADB
 		const paramsForStatus = new URLSearchParams();
-		paramsForStatus.append('auth', process.env.ADB_SECRET);
+		paramsForStatus.append('auth', config.ADB_SECRET);
 		paramsForStatus.append('id', userDiscordID);
 
 		fetch('https://adb.dxe.io/discord/status', {method: 'POST', body: paramsForStatus})
@@ -228,7 +236,7 @@ client.on('message', msg => {
 
 			// make "generate" request to ADB - it will return "invalid email" if not found or "success" if email belongs to an activist
 			const paramsForGenerate = new URLSearchParams();
-			paramsForGenerate.append('auth', process.env.ADB_SECRET);
+			paramsForGenerate.append('auth', config.ADB_SECRET);
 			paramsForGenerate.append('id', userDiscordID);
 			paramsForGenerate.append('email', userEmail);
 
@@ -261,7 +269,7 @@ client.on('message', msg => {
 });
 
 // event listener for new guild members
-if (WELCOME_NEW_MEMBERS) {
+if (config.WELCOME_NEW_MEMBERS) {
 	client.on('guildMemberAdd', member => {
 	  console.log("guild member added.");
 	  const channel = member.guild.channels.cache.find(ch => ch.name === '🔑verify');
@@ -275,7 +283,7 @@ if (WELCOME_NEW_MEMBERS) {
 	});
 }
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(config.DISCORD_TOKEN);
 
 function getUserRoles() {}
 
@@ -285,7 +293,7 @@ app.get('/roles/get', (req, res) => {
 	// (not super important b/c it is only accessible internally on server itself)
 
 	// fetch the guild's roles so that we know the names
-	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+	client.guilds.fetch(config.DISCORD_GUILD_ID)
 	.then(guild => {
 		guild.roles.fetch()
 		.then(roles => {
@@ -295,7 +303,7 @@ app.get('/roles/get', (req, res) => {
 			})
 
 			// fetch the user's roles
-			client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+			client.guilds.fetch(config.DISCORD_GUILD_ID)
 			.then(guild => {
 				guild.members.fetch(req.query.user)
 				.then(user => {
@@ -335,7 +343,7 @@ app.post('/send_message', async (req, res) => {
 		return res.json({"result": "error: no message provided"});
 	}
 
-	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+	client.guilds.fetch(config.DISCORD_GUILD_ID)
 	.then(guild => {
 		guild.members.fetch(recipient)
 		.then(recipient => {
@@ -372,7 +380,7 @@ app.post('/update_nickname', (req, res) => {
 		return res.json({"result": "error: no name provided"});
 	}
 
-	client.guilds.fetch(process.env.DISCORD_GUILD_ID)
+	client.guilds.fetch(config.DISCORD_GUILD_ID)
 	.then(guild => {
 		guild.members.fetch(user)
 		.then(user => {
@@ -389,6 +397,6 @@ app.post('/update_nickname', (req, res) => {
 })
 
 
-app.listen(port, () => {
-	console.log(`App listening at http://localhost:${port}`)
+app.listen(config.PORT, () => {
+	console.log(`App listening at http://localhost:${config.PORT}`)
 })
