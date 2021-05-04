@@ -14,6 +14,6 @@ PORT=XXXX ; port to run on to listen for local requests
 ```
 5. ```npm run start```
 
-## Deplying to prod
+## Deploying to prod
 - A GitHub Action automatically builds the Docker image and pushes it to ECR.
 - Watchtower is running on our apps servers to automatically pull the new image and restart the container.
